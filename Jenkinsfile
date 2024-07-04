@@ -31,13 +31,11 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    try {
-                        sh "docker stop ${env.CONTAINER_NAME}"
-                        sh "docker rm ${env.CONTAINER_NAME}"
-                    } catch (Exception e) {
-                        echo "No existing container to stop or remove."
-                    }
-                    
+                    // Stop and remove the container if it exists
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker stop"
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker rm"
+
+                    // Run the new container
                     sh "docker run -d -p 80:80 --name ${env.CONTAINER_NAME} ${env.DOCKER_IMAGE}"
                 }
             }
