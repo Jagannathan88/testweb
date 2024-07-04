@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
         REPO_URL = 'https://github.com/Jagannathan88/capstone.git'
-        BRANCH = 'dev'
+        BRANCH = 'test'
         DOCKER_IMAGE = 'jagannathan88/dev:latest'
     }
 
@@ -36,7 +36,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    docker.image("${env.DOCKER_IMAGE}").run('-d -p 80:80')
+                    def app = docker.image("${env.DOCKER_IMAGE}")
+                    app.run('-d -p 80:80')
                 }
             }
         }
