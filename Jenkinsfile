@@ -2,11 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials')
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'
         REPO_URL = 'https://github.com/Jagannathan88/testweb.git'
         BRANCH = 'test'
         DOCKER_IMAGE = 'jagannathan88/dev:latest'
-        DOCKER_HUB_URL = 'docker.io'
     }
 
     stages {
@@ -27,7 +26,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry("https://${env.DOCKER_HUB_URL}", 'docker-hub-credentials') {
+                    withDockerRegistry(credentialsId: "${env.DOCKER_HUB_CREDENTIALS}", url: 'https://index.docker.io/v1/') {
                         docker.image("${env.DOCKER_IMAGE}").push()
                     }
                 }
