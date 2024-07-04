@@ -6,6 +6,7 @@ pipeline {
         REPO_URL = 'https://github.com/Jagannathan88/testweb.git'
         BRANCH = 'test'
         DOCKER_IMAGE = 'jagannathan88/dev:latest'
+        DOCKER_HUB_URL = 'docker.io'
     }
 
     stages {
@@ -26,7 +27,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', "${env.DOCKER_HUB_CREDENTIALS}") {
+                    docker.withRegistry("https://${env.DOCKER_HUB_URL}", 'docker-hub-credentials') {
                         docker.image("${env.DOCKER_IMAGE}").push()
                     }
                 }
