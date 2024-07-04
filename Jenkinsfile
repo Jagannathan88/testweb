@@ -23,14 +23,15 @@ pipeline {
             }
         }
 
-	stage('Push Docker Image') {
-    	    steps {
-        	script {
-            	    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                	docker.image('jagannathan88/dev:latest').push()
-            	}
-             }	
-         } 
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', "${env.DOCKER_HUB_CREDENTIALS}") {
+                        docker.image("${env.DOCKER_IMAGE}").push()
+                    }
+                }
+            }
+        }
 
         stage('Deploy Container') {
             steps {
