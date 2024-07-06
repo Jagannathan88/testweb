@@ -40,6 +40,20 @@ pipeline {
                 }
             }
         }
+	post {
+            always {
+            	script {
+               	// Clean up stopped containers
+                sh 'docker container prune -f'
+                // Clean up unused images
+                sh 'docker image prune -f'
+                // Clean up dangling volumes
+                sh 'docker volume prune -f'
+                // Clean up dangling networks
+                sh 'docker network prune -f'
+            }
+        }
+    }
     }
 
 }
