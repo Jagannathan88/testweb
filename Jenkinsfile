@@ -42,23 +42,5 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            script {
-                // Clean up docker
-                def existingContainers = dockerContainerList(filter: "${env.CONTAINER_NAME}")
-                if (existingContainers.size() > 0) {
-                    docker.stop(existingContainers)
-                    docker.remove(existingContainers)
-                }
-                
-                // Stop and remove Docker image
-                docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
-                    docker.image("${env.DOCKER_IMAGE}").stop()
-                    docker.image("${env.DOCKER_IMAGE}").remove()
-                }
-            }
-        }
-    }
 }
 
