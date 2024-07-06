@@ -32,8 +32,8 @@ pipeline {
             steps {
                 script {
                     // Stop and remove the container if it exists
-                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker stop"
-                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker rm"
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker stop || true"
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker rm || true"
 
                     // Run the new container
                     sh "docker run -d -p 80:80 --name ${env.CONTAINER_NAME} ${env.DOCKER_IMAGE}"
@@ -45,12 +45,18 @@ pipeline {
     post {
         always {
             script {
+                // Clean up docker
+                def existingContainers = dockerContainerList(filter: "${env.CONTAINER_NAME}")
+                if (existingContainers.size() > 0) {
+                    docker.stop(existingContainers)
+                    docker.remove(existingContainers)
+                }
+                
+                // Stop and remove Docker image
                 docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
                     docker.image("${env.DOCKER_IMAGE}").stop()
                     docker.image("${env.DOCKER_IMAGE}").remove()
                 }
-                sh "docker stop ${env.CONTAINER_NAME} || true"
-                sh "docker rm ${env.CONTAINER_NAME} || true"
             }
         }
     }
