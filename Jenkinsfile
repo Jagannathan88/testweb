@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'  // Update with your Docker Hub credentials ID
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'
         REPO_URL = 'https://github.com/Jagannathan88/testweb.git'
         BRANCH = 'test'
         DOCKER_IMAGE = 'jagannathan88/dev:latest'
@@ -40,21 +40,21 @@ pipeline {
                 }
             }
         }
-	post {
-            always {
-            	script {
-               	// Clean up stopped containers
-                sh 'docker container prune -f'
+    }
+
+    post {
+        always {
+            script {
+                // Clean up stopped containers
+                sh 'docker container prune -f || true'
                 // Clean up unused images
-                sh 'docker image prune -f'
+                sh 'docker image prune -f || true'
                 // Clean up dangling volumes
-                sh 'docker volume prune -f'
+                sh 'docker volume prune -f || true'
                 // Clean up dangling networks
-                sh 'docker network prune -f'
+                sh 'docker network prune -f || true'
             }
         }
     }
-    }
-
 }
 
