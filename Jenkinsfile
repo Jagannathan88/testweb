@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/test']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Jagannathan88/testweb.git']]])
+                checkout([$class: 'GitSCM', branches: [[name: '*/test']], userRemoteConfigs: [[url: 'https://github.com/Jagannathan88/testweb.git']]])
             }
         }
         stage('Build and Push Docker Image') {
@@ -24,8 +24,7 @@ pipeline {
         }
         stage('Deploy Container') {
             steps {
-                // Add your deployment steps here
-                // This stage will be executed after successful build and push
+                // Add deployment steps here, e.g., deploying to Kubernetes, Docker Swarm, etc.
             }
         }
     }
@@ -33,7 +32,6 @@ pipeline {
     post {
         always {
             script {
-                // Clean up steps or any post-processing logic
                 docker.withRegistry('', registryCredential) {
                     def customImage = docker.image(dockerImage)
                     customImage.remove()
