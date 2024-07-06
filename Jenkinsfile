@@ -41,10 +41,12 @@ pipeline {
             }
         }
     }
-	post {
+
+    post {
         always {
             script {
                 docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
+                    docker.image("${env.DOCKER_IMAGE}").stop()
                     docker.image("${env.DOCKER_IMAGE}").remove()
                 }
                 sh "docker stop ${env.CONTAINER_NAME} || true"
