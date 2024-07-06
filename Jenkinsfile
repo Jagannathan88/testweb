@@ -2,39 +2,30 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials') // Assuming credentials are set in Jenkins
-        REPO_URL = 'https://github.com/Jagannathan88/testweb.git'
-        BRANCH = 'test'
-        DOCKER_IMAGE = 'jagannathan88/dev:latest'
-        CONTAINER_NAME = 'my-app-container'
+        registryCredential = 'docker-hub-credentials'
+        dockerImage = 'jagannathan88/dev:latest'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                cleanWs()
-                git branch: "${env.BRANCH}", url: "${env.REPO_URL}"
+                checkout([$class: 'GitSCM', branches: [[name: '*/test']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/Jagannathan88/testweb.git']]])
             }
         }
-
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    docker.build("${env.DOCKER_IMAGE}")
-                    docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
-                        docker.image("${env.DOCKER_IMAGE}").push()
+                    docker.withRegistry('https://index.docker.io/v1/', registryCredential) {
+                        def customImage = docker.build(dockerImage)
+                        customImage.push()
                     }
                 }
             }
         }
-
         stage('Deploy Container') {
             steps {
-                script {
-                    sh "docker stop ${env.CONTAINER_NAME} || true"
-                    sh "docker rm ${env.CONTAINER_NAME} || true"
-                    sh "docker run -d -p 80:80 --name ${env.CONTAINER_NAME} ${env.DOCKER_IMAGE}"
-                }
+                // Add your deployment steps here
+                // This stage will be executed after successful build and push
             }
         }
     }
@@ -42,11 +33,11 @@ pipeline {
     post {
         always {
             script {
-                docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
-                    docker.image("${env.DOCKER_IMAGE}").remove()
+                // Clean up steps or any post-processing logic
+                docker.withRegistry('', registryCredential) {
+                    def customImage = docker.image(dockerImage)
+                    customImage.remove()
                 }
-                sh "docker stop ${env.CONTAINER_NAME} || true"
-                sh "docker rm ${env.CONTAINER_NAME} || true"
             }
         }
     }
