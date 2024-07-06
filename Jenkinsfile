@@ -17,7 +17,7 @@ pipeline {
             }
         }
 
-    	stage('Build and Push Docker Image') {
+        stage('Build and Push Docker Image') {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', "${env.DOCKER_HUB_CREDENTIALS}") {
@@ -40,6 +40,7 @@ pipeline {
                 }
             }
         } 
+    }
 
     post {
         always {
@@ -53,4 +54,4 @@ pipeline {
         }
     }
 }
-}
+
