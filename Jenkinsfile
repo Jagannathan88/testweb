@@ -41,5 +41,18 @@ pipeline {
             }
         }
     }
+
+    post {
+        always {
+            script {
+                // Cleanup: Remove Docker images and containers
+                docker.withRegistry('https://index.docker.io/v1/', "${env.DOCKER_HUB_CREDENTIALS}") {
+                    docker.image("${env.DOCKER_IMAGE}").remove()
+                }
+                sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker stop"
+                sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker rm"
+            }
+        }
+    }
 }
 
