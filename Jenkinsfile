@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_HUB_CREDENTIALS = credentials('docker-hub-credentials') // Assuming credentials are set in Jenkins
+        DOCKER_HUB_CREDENTIALS = 'docker-hub-credentials'  // Update with your Docker Hub credentials ID
         REPO_URL = 'https://github.com/Jagannathan88/testweb.git'
         BRANCH = 'test'
         DOCKER_IMAGE = 'jagannathan88/dev:latest'
@@ -39,10 +39,9 @@ pipeline {
                     sh "docker run -d -p 80:80 --name ${env.CONTAINER_NAME} ${env.DOCKER_IMAGE}"
                 }
             }
-        } 
+        }
     }
-
-    post {
+	post {
         always {
             script {
                 docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
