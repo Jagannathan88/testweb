@@ -17,12 +17,12 @@ pipeline {
             }
         }
 
-        stage('Build and Push Docker Image') {
+    	stage('Build and Push Docker Image') {
             steps {
                 script {
-                    docker.build("${env.DOCKER_IMAGE}")
-                    docker.withRegistry('', "${env.DOCKER_HUB_CREDENTIALS}") {
-                        docker.image("${env.DOCKER_IMAGE}").push()
+                    docker.withRegistry('https://index.docker.io/v1/', "${env.DOCKER_HUB_CREDENTIALS}") {
+                        def dockerImage = docker.build("${env.DOCKER_IMAGE}")
+                        dockerImage.push()
                     }
                 }
             }
@@ -31,13 +31,15 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    sh "docker stop ${env.CONTAINER_NAME} || true"
-                    sh "docker rm ${env.CONTAINER_NAME} || true"
+                    // Stop and remove the container if it exists
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker stop"
+                    sh "docker ps -aqf name=${env.CONTAINER_NAME} | xargs -r docker rm"
+
+                    // Run the new container
                     sh "docker run -d -p 80:80 --name ${env.CONTAINER_NAME} ${env.DOCKER_IMAGE}"
                 }
             }
-        }
-    }
+        } 
 
     post {
         always {
@@ -51,4 +53,4 @@ pipeline {
         }
     }
 }
-
+}
